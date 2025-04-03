@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT!</title>
+    <link rel="icon" type="image/x-icon" href="https://github.com/twofun52/tufanakturk.git">
+    <style>
+        @font-face {
+            font-family: 'MatrixFont';
+            src: url('https://db.onlinewebfonts.com/t/1a6468c90b8500f84b520e00cd4b9874.woff2') format('woff2');
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: #0F0;
+            font-family: 'MatrixFont', monospace;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .email {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: bold;
+            color: #0F0;
+            font-family: 'MatrixFont', monospace;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .email a {
+            color: #0F0;
+            text-decoration: none;
+        }
+        .email a:hover {
+            text-decoration: underline;
+        }
+        .ip-display {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: #0F0;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: 'MatrixFont', monospace;
+        }
+        .password-generator {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: #0F0;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-family: 'MatrixFont', monospace;
+            text-align: center;
+        }
+        .password-generator button {
+            background-color: #0F0;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .password-generator button:hover {
+            background-color: #0a0;
+        }
+        .password-generator input {
+            background-color: black;
+            color: #0F0;
+            border: 2px solid #0F0;
+            font-size: 16px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .password-generator .copy-btn {
+            background-color: #0F0;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .password-generator .copy-btn:hover {
+            background-color: #0a0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="email"><a href="mailto:tufanakturk@hotmail.com">tufanakturk@hotmail.com</a></div>
+    <div id="info" class="ip-display"></div>
+    <div class="password-generator">
+        <button onclick="generatePassword()">Güçlü Şifre Oluştur</button>
+        <input type="text" id="passwordOutput" readonly placeholder="Şifre burada görünecek">
+        <button class="copy-btn" onclick="copyPassword()">Kopyala</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("matrixCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const katakana = "アカサタナハマヤラワン";
+        const latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const nums = "0123456789";
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 14; // Daha küçük font boyutu
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#0F0";
+            ctx.font = `${fontSize}px MatrixFont, monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                ctx.fillText(text, x, y);
+
+                if (y > canvas.height && Math.random() > 0.95) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        async function fetchIP() {
+            try {
+                const response = await fetch("https://api.ipify.org?format=json");
+                const data = await response.json();
+                document.getElementById("info").innerText = `IP Adresiniz: ${data.ip}`;
+            } catch (error) {
+                console.error("IP adresi alınamadı:", error);
+                document.getElementById("info").innerText = "IP adresi alınamadı!";
+            }
+        }
+        fetchIP();
+
+        function generatePassword() {
+            const passwordLength = 16;
+            let password = "";
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+            for (let i = 0; i < passwordLength; i++) {
+                password += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById("passwordOutput").value = password;
+        }
+
+        function copyPassword() {
+            const passwordField = document.getElementById("passwordOutput");
+            passwordField.select();
+            passwordField.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+
+            alert("Şifre panoya kopyalandı!");
+        }
+
+        setInterval(drawMatrix, 50);
+    </script>
+</body>
+</html>
