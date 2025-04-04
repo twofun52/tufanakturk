@@ -107,6 +107,29 @@
         .password-generator .copy-btn:hover {
             background-color: #0a0;
         }
+        .terminal {
+            position: absolute;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            width: 60%;
+            max-width: 800px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'MatrixFont', monospace;
+            color: #0F0;
+            overflow-y: scroll;
+        }
+        .terminal input {
+            background-color: black;
+            color: #0F0;
+            border: 2px solid #0F0;
+            width: 100%;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +140,12 @@
         <button onclick="generatePassword()">Komplex Şifre Oluştur</button>
         <input type="text" id="passwordOutput" readonly placeholder="Şifre burada görünecek">
         <button class="copy-btn" onclick="copyPassword()">Kopyala</button>
+    </div>
+
+    <!-- Terminal Simülasyonu -->
+    <div class="terminal">
+        <div id="terminal-output">Kullanıcı: ~ $ </div>
+        <input type="text" id="terminal-input" placeholder="Komut girin..." onkeydown="handleTerminalInput(event)">
     </div>
 
     <script>
@@ -185,6 +214,24 @@
             document.execCommand("copy");
 
             alert("Şifre panoya kopyalandı!");
+        }
+
+        // Terminal Simülasyonu
+        function handleTerminalInput(event) {
+            if (event.key === "Enter") {
+                const input = document.getElementById("terminal-input").value;
+                const output = document.getElementById("terminal-output");
+
+                if (input === "ls") {
+                    output.innerHTML += "<br>Dosyalar: file1.txt, file2.txt, file3.txt";
+                } else if (input === "pwd") {
+                    output.innerHTML += "<br>/home/user";
+                } else {
+                    output.innerHTML += `<br>Hata: Komut bulunamadı: ${input}`;
+                }
+                document.getElementById("terminal-input").value = '';
+                output.scrollTop = output.scrollHeight; // Terminal ekranı aşağı kayacak
+            }
         }
 
         setInterval(drawMatrix, 50);
